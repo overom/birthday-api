@@ -25,6 +25,10 @@ app.options(`*`, (req, res) => {
   res.status(200).send();
 });
 
+app.get("/", (req, res) => {
+  res.send("hello");
+});
+
 app.post("/login", async function (req, res) {
   const { email, password } = req.body;
   let user;
@@ -46,7 +50,7 @@ app.post("/login", async function (req, res) {
       {
         email,
       },
-      "secret-YTiuugy67fUJ-5FffnC",
+      process.env.jwtSecretKey,
       { expiresIn: "12h" }
     );
     return res.json({ token });
@@ -59,16 +63,13 @@ app.get("/user-profile", async function (req, res) {
   const authHeader = req.headers.authorization;
   if (authHeader) {
     const token = authHeader.split(" ")[1];
-    jwt.verify(token, "secret-YTiuugy67fUJ-5FffnC", async (err, decoded) => {
+    jwt.verify(token, process.env.jwtSecretKey, async (err, decoded) => {
       if (err) return res.sendStatus(403);
       let user;
       try {
         user = await getByEmail(decoded.email);
         res.json({ email: user.email, pseudo: user.pseudo });
       } catch (err) {
-        console.log("====================================");
-        console.log(err);
-        console.log("====================================");
         res.sendStatus(401);
       }
     });
@@ -81,12 +82,9 @@ app.get("/question/:questionId", async function (req, res) {
   const authHeader = req.headers.authorization;
   if (authHeader) {
     const token = authHeader.split(" ")[1];
-    jwt.verify(token, "secret-YTiuugy67fUJ-5FffnC", async (err, decoded) => {
+    jwt.verify(token, process.env.jwtSecretKey, async (err, decoded) => {
       if (err) return res.sendStatus(403);
       if (decoded.email) {
-        console.log("===req.params============================");
-        console.log(req.params.questionId);
-        console.log("====================================");
         const { questionId } = req.params;
         let question;
         switch (questionId) {
@@ -164,7 +162,7 @@ app.post("/reponse/:reponseId", async function (req, res) {
   const authHeader = req.headers.authorization;
   if (authHeader) {
     const token = authHeader.split(" ")[1];
-    jwt.verify(token, "secret-YTiuugy67fUJ-5FffnC", async (err, decoded) => {
+    jwt.verify(token, process.env.jwtSecretKey, async (err, decoded) => {
       if (err) return res.sendStatus(403);
       if (decoded.email) {
         const { reponseId } = req.params;
