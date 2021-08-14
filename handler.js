@@ -1,4 +1,5 @@
 const AWS = require("aws-sdk");
+import { htmlEncoded } from "./utils/index";
 const express = require("express");
 const serverless = require("serverless-http");
 const utils = require("./utils");
@@ -30,7 +31,12 @@ app.get("/", (req, res) => {
 });
 
 app.post("/login", async function (req, res) {
-  const { email, password } = req.body;
+  if (!req.body.email || !req.body.password)
+    return res.status(404).send({ error: "Wrong email or password" });
+
+  const email = htmlEncoded(req.body.email);
+  const password = htmlEncoded(req.body.password);
+
   let user;
   try {
     user = await getByEmail(email);
@@ -79,6 +85,7 @@ app.get("/user-profile", async function (req, res) {
 });
 
 app.get("/question/:questionId", async function (req, res) {
+  if (!req.params.questionId) return res.sendStatus(403);
   const authHeader = req.headers.authorization;
   if (authHeader) {
     const token = authHeader.split(" ")[1];
@@ -159,6 +166,8 @@ app.get("/question/:questionId", async function (req, res) {
 });
 
 app.post("/reponse/:reponseId", async function (req, res) {
+  if (!req.params.reponseId) return res.sendStatus(403);
+  if (!req.body.userResponse) return res.sendStatus(403);
   const authHeader = req.headers.authorization;
   if (authHeader) {
     const token = authHeader.split(" ")[1];
@@ -166,7 +175,7 @@ app.post("/reponse/:reponseId", async function (req, res) {
       if (err) return res.sendStatus(403);
       if (decoded.email) {
         const { reponseId } = req.params;
-        let { userResponse } = req.body;
+        let userResponse = htmlEncoded(req.body.userResponse);
 
         let reponse;
         let nextQuestionId;
@@ -394,7 +403,13 @@ app.post("/reponse/:reponseId", async function (req, res) {
 });
 
 app.post("/register", async function (req, res) {
-  const { pseudo, email, password } = req.body;
+  if (!req.body.email || !req.body.password || !req.body.pseudo)
+    return res.status(404).send({ error: "Wrong email or password or pseudo" });
+
+  const email = htmlEncoded(req.body.email);
+  const password = htmlEncoded(req.body.password);
+  const pseudo = htmlEncoded(req.body.pseudo);
+
   const hashPassword = utils.hashPassword(password);
   if (!pseudo || !email || !password) {
     res.status(400).json({ error: true });
