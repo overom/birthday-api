@@ -1,5 +1,4 @@
 const AWS = require("aws-sdk");
-import { htmlEncoded } from "./utils/index";
 const express = require("express");
 const serverless = require("serverless-http");
 const utils = require("./utils");
@@ -34,8 +33,8 @@ app.post("/login", async function (req, res) {
   if (!req.body.email || !req.body.password)
     return res.status(404).send({ error: "Wrong email or password" });
 
-  const email = htmlEncoded(req.body.email);
-  const password = htmlEncoded(req.body.password);
+  const email = utils.htmlEncoded(req.body.email);
+  const password = utils.htmlEncoded(req.body.password);
 
   let user;
   try {
@@ -175,7 +174,7 @@ app.post("/reponse/:reponseId", async function (req, res) {
       if (err) return res.sendStatus(403);
       if (decoded.email) {
         const { reponseId } = req.params;
-        let userResponse = htmlEncoded(req.body.userResponse);
+        let userResponse = utils.htmlEncoded(req.body.userResponse);
 
         let reponse;
         let nextQuestionId;
@@ -406,9 +405,9 @@ app.post("/register", async function (req, res) {
   if (!req.body.email || !req.body.password || !req.body.pseudo)
     return res.status(404).send({ error: "Wrong email or password or pseudo" });
 
-  const email = htmlEncoded(req.body.email);
-  const password = htmlEncoded(req.body.password);
-  const pseudo = htmlEncoded(req.body.pseudo);
+  const email = utils.htmlEncoded(req.body.email);
+  const password = utils.htmlEncoded(req.body.password);
+  const pseudo = utils.htmlEncoded(req.body.pseudo);
 
   const hashPassword = utils.hashPassword(password);
   if (!pseudo || !email || !password) {

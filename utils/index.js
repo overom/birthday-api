@@ -16,7 +16,7 @@ const comparePassword = (candidatePassword, trustedPassword) => {
   return bcrypt.compareSync(candidatePassword, trustedPassword);
 };
 
-export const htmlEncoded = (value) => {
+const htmlEncoded = (value) => {
   const htmlCharMap = {
     "'": "&#39;",
     '"': "&quot;",
